@@ -166,8 +166,15 @@ def scan(task):
   """
   for p in task.paths:
     _logger.info('Scan for %s', p)
-    subprocess.call(task.occ_cmd+['files:scan', '--no-interaction', '--path='+p,
-                                  '--shallow', '--quiet'])
+    while True:
+      try:
+        subprocess.check_output(task.occ_cmd+['files:scan', '--no-interaction', '--path='+p,
+                                    '--shallow', '--quiet'])
+      except subprocess.CalledProcessError as e:
+        _logger.error(f"Unexpected error during scan for '{p}' Is docker container running? {e}")
+        time.sleep(10)
+      else:
+        break
   task.paths.clear()
 
 def watch_instances(instances):
@@ -182,9 +189,17 @@ def watch_instances(instances):
     else:
       occ_cmd = [instance.php, instance.occ]
     path_mapper = PathMapper(instance.docker)
-    data_dir = subprocess.check_output(
-        occ_cmd+['config:system:get', 'datadirectory'],
-        universal_newlines=True).rstrip()
+    min_interval = min(instance.interval for instance in instances)
+    interval = min_interval
+    data_dir = None
+    while data_dir is None:
+      try:
+        data_dir = subprocess.check_output(
+            occ_cmd+['config:system:get', 'datadirectory'],
+            universal_newlines=True).rstrip()
+      except subprocess.CalledProcessError as e:
+        _logger.error(f"Unexpected error during setup. Is docker container running? {e}")
+        time.sleep(interval)
     data_dir = path_mapper(data_dir)
     for user in instance.users:
       # path_prefix is the virtual folder recognized by Nextcloud
@@ -234,7 +249,6 @@ def watch_instances(instances):
           folders.append(Folder(occ_cmd=occ_cmd, path_prefix=path_prefix,
                                 data_prefix=data_prefix))
   workers = tuple(map(watch, folders))
-  min_interval = min(instance.interval for instance in instances)
   while True:
     interval = min_interval
     for worker in workers:
