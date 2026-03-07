@@ -1,0 +1,6 @@
+INTERVAL=1
+USER_NAME=admin
+USE_DOCKER=True
+DOCKER_CONTAINER=nextcloud-aio-nextcloud
+DOCKER_USER=www-data
+DATA_FOLDER=/path/to/mount/to/watch/files

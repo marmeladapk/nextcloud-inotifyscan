@@ -109,7 +109,7 @@ def parse_environ():
     return os.environ[var]
 
   interval = float(os.environ.get('INTERVAL', 1.))
-  user = require_environ('USER_NAME').strip()
+  users = tuple(map(str.strip, require_environ('USER_NAME').strip().split(',')))
   if os.environ.get('USE_DOCKER') == 'True':
     docker = [require_environ('DOCKER_USER'),
               require_environ('DOCKER_CONTAINER')]
@@ -117,7 +117,7 @@ def parse_environ():
   else:
     docker = False
     occ = require_environ('NEXTCLOUD_HOME') + '/occ'
-  return Instance(interval=interval, occ=occ, users=(user,),
+  return Instance(interval=interval, occ=occ, users=users,
                   external_storage=None, docker=docker,
                   php='php')
 

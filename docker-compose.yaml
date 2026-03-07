@@ -1,0 +1,17 @@
+services:
+  nextcloud-inotifyscan-service:
+    build: .
+    image: nextcloud-inotifyscan
+    init: true
+    restart: unless-stopped
+    container_name: nextcloud-inotifyscan
+    network_mode: "none"
+    volumes:
+      - ${DATA_FOLDER}:${DATA_FOLDER}:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - INTERVAL=${INTERVAL}
+      - USER_NAME=${USER_NAME}
+      - USE_DOCKER=${USE_DOCKER}
+      - DOCKER_USER=${DOCKER_USER}
+      - DOCKER_CONTAINER=${DOCKER_CONTAINER}

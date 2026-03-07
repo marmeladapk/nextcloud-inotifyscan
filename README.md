@@ -42,3 +42,9 @@ The script should work if modified for other environments.
 + Watching ~2000 directories with ~30000 files, `inotifywait` consumes less than 4MB memory (RES+SHR)
 + To watch more than 8192 directories, `fs.inotify.max_user_watches` may need to be increased via `sysctl`
 + Nextcloud 14+ is required for [the `--shallow` flag](https://github.com/nextcloud/server/pull/9526)
+ 
+ ## Usage with docker compose
+
+ + Copy example_env to .env and change config
+   - You can specify multiple user names, separate them with comma (',') without spaces
+ + Run with `docker compose up -d`
